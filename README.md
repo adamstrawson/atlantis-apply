@@ -1,10 +1,10 @@
 # Atlantis apply en masse 
 
-This utility allows you to mass approve and apply Renovate PRs within Atlantis
+This utility allows you to mass approve and apply [Renovate](https://www.mend.io/renovate/) PRs within [Atlantis](https://www.runatlantis.io/)
 
 ## Prerequisites
 
-Before using this program, make sure you have the following:
+Before using this utility, make sure you have the following:
 
 - Go installed on your system: [Download and Install Go](https://golang.org/dl/)
 - A GitHub personal access token: [Creating a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
@@ -14,13 +14,13 @@ Before using this program, make sure you have the following:
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/adamstrawson/github-api-client.git
+   git clone https://github.com/adamstrawson/atlantis-apply.git
    ```
 
 2. Change to the project directory:
 
     ```bash
-    cd github-api-client
+    cd atlantis-applu
     ```
 
 3. Build the Go program:

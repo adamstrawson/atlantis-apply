@@ -44,7 +44,6 @@ func main() {
 	parts := strings.Split(*repo, "/")
 	if len(parts) != 2 {
 		log.Fatal("Please provide repo in the format of \"Organisation/Repository\"")
-		os.Exit(1)
 	}
 
 	owner := parts[0]
