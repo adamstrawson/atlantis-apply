@@ -20,7 +20,7 @@ Before using this utility, make sure you have the following:
 2. Change to the project directory:
 
     ```bash
-    cd atlantis-applu
+    cd atlantis-apply
     ```
 
 3. Build the Go program:
