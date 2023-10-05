@@ -102,19 +102,58 @@ func main() {
 				prOpts := &github.PullRequestBranchUpdateOptions{}
 				_, _, _ = client.PullRequests.UpdateBranch(ctx, owner, *repo, *pr.Number, prOpts)
 				fmt.Printf("Waiting for PR #%d to rebase...\n", *pr.Number)
-				time.Sleep(10 * time.Second)
+
+				// Create a review approving the PR
+				fmt.Printf("Approving PR #%d \n", *pr.Number)
+				review := github.PullRequestReviewRequest{
+					Event: github.String("APPROVE"),
+				}
+				_, _, err = client.PullRequests.CreateReview(ctx, owner, *repo, *pr.Number, &review)
+				if err != nil {
+					log.Fatalf("Error approving review for PR #%d: %v", *pr.Number, err)
+				}
+
+				timeout := time.After(120 * time.Second)
+
+			Loop:
+				for {
+					select {
+					case <-timeout:
+						log.Fatal("Timeout exceeded. PR status checks are not green.")
+					default:
+						// Get the PR information
+						pr, _, err := client.PullRequests.Get(ctx, owner, *repo, *pr.Number)
+						if err != nil {
+							log.Fatalf("Error fetching PR information: %v", err)
+						}
+
+						// Check if all status checks are green
+						state := pr.GetMergeableState()
+						if state != "clean" {
+							fmt.Printf("Waiting for status checks to become green, currently \"%s\".\n", state)
+							time.Sleep(5 * time.Second)
+							break
+						}
+
+						fmt.Println("All status checks are green. PR is ready to merge.")
+						break Loop
+
+					}
+				}
+
+			} else {
+				// Create a review approving the PR
+				fmt.Printf("Approving PR #%d \n", *pr.Number)
+				review := github.PullRequestReviewRequest{
+					Event: github.String("APPROVE"),
+				}
+				_, _, err = client.PullRequests.CreateReview(ctx, owner, *repo, *pr.Number, &review)
+				if err != nil {
+					log.Fatalf("Error approving review for PR #%d: %v", *pr.Number, err)
+				}
 			}
 
-			fmt.Printf("PR #%d is up-to-date. Approving review.\n", *pr.Number)
-
-			// Create a review approving the PR
-			review := github.PullRequestReviewRequest{
-				Event: github.String("APPROVE"),
-			}
-			_, _, err = client.PullRequests.CreateReview(ctx, owner, *repo, *pr.Number, &review)
-			if err != nil {
-				log.Fatalf("Error approving review for PR #%d: %v", *pr.Number, err)
-			}
+			fmt.Printf("PR #%d is up-to-date. Running atlantis apply.\n", *pr.Number)
 
 			// Comment on the PR
 			comment := &github.IssueComment{
